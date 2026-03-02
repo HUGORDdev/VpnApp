@@ -1,25 +1,44 @@
-import React, { ReactNode } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, View } from 'react-native';
 import Svg, { Line } from 'react-native-svg';
 
-const CircularTicks = ({ isConnected,child }: { isConnected: boolean,child:ReactNode }) => {
-  const totalTicks = 60; // Nombre de traits autour du cercle
-  const radius = 100;    // Rayon du cercle de traits
-  const centerX = 110;   // Centre du SVG
-  const centerY = 110;
-  const tickLength = 10; // Longueur de chaque petit trait
+type Props = {
+  isConnected: boolean;
+  size?: number;
+};
+
+const CircularTicks: React.FC<Props> = ({ isConnected, size = 180 }) => {
+  const totalTicks = 60; 
+  const outerDiameter = size; 
+  const center = outerDiameter / 2;
+  const tickLength = Math.max(6, Math.round(size * 0.06));
+  const radius = center - 8; 
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (isConnected) {
+      rotateAnim.setValue(0);
+      Animated.loop(
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 2500,
+          useNativeDriver: true,
+        })
+      ).start();
+    } else {
+      rotateAnim.stopAnimation();
+      rotateAnim.setValue(0);
+    }
+  }, [isConnected, rotateAnim]);
 
   const ticks = Array.from({ length: totalTicks }).map((_, i) => {
     const angle = (i * 360) / totalTicks;
     const angleRad = (angle * Math.PI) / 180;
 
-    // Point de départ (proche du bouton)
-    const x1 = centerX + (radius - tickLength) * Math.cos(angleRad);
-    const y1 = centerY + (radius - tickLength) * Math.sin(angleRad);
-
-    // Point d'arrivée (vers l'extérieur)
-    const x2 = centerX + radius * Math.cos(angleRad);
-    const y2 = centerY + radius * Math.sin(angleRad);
+    const x1 = center + (radius - tickLength) * Math.cos(angleRad);
+    const y1 = center + (radius - tickLength) * Math.sin(angleRad);
+    const x2 = center + radius * Math.cos(angleRad);
+    const y2 = center + radius * Math.sin(angleRad);
 
     return (
       <Line
@@ -28,22 +47,36 @@ const CircularTicks = ({ isConnected,child }: { isConnected: boolean,child:React
         y1={y1}
         x2={x2}
         y2={y2}
-        stroke={isConnected ? "#2E5BFF" : "#1F2235"} // Bleu si connecté, gris sinon
-        strokeWidth="2"
+        stroke={isConnected ? '#2E5BFF' : '#1F2235'}
+        strokeWidth={2}
         strokeLinecap="round"
-        opacity={isConnected ? (i % 2 === 0 ? 1 : 0.4) : 0.3} // Effet de rythme visuel
+        opacity={isConnected ? (i % 2 === 0 ? 1 : 0.45) : 0.25}
       />
     );
   });
 
+  const rotate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   return (
-    <View style={StyleSheet.absoluteFill}>
-      <Svg height="220" width="220" viewBox="0 0 220 220">
-        {ticks}
-        {child}
-      </Svg>
+    <View style={styles.container} pointerEvents="none">
+      <Animated.View style={{ transform: [{ rotate }] }}>
+        <Svg height={outerDiameter} width={outerDiameter} viewBox={`0 0 ${outerDiameter} ${outerDiameter}`}>
+          {ticks}
+        </Svg>
+      </Animated.View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default CircularTicks;

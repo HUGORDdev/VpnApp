@@ -42,47 +42,12 @@ const Home = () => {
    * Lance l'animation de pulsation
    * Crée un effet de vague qui s'étend à partir du bouton
    */
-  const startPulseAnimation = () => {
-    Animated.loop(
-      Animated.sequence([
-        // Expansion (0 à 1)
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-        // Retour instantané (1 à 0)
-        Animated.timing(pulseAnim, {
-          toValue: 0,
-          duration: 0,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  };
 
   /**
    * Lance l'animation de rotation du bouton
    * Effet de chargement lors de la connexion
    */
-  const startRotationAnimation = () => {
-    rotateAnim.setValue(0);
-    Animated.loop(
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 2000,
-        useNativeDriver: true,
-      })
-    ).start();
-  };
-
-  /**
-   * Lance l'animation de glow (lueur brillante)
-   */
-
-  /**
-   * Arrête toutes les animations
-   */
+  
   const stopAllAnimations = () => {
     pulseAnim.setValue(0);
     rotateAnim.setValue(0);
@@ -91,7 +56,6 @@ const Home = () => {
 
   /**
    * Simule un test de vitesse avec progression réaliste
-   * Augmente graduellement les valeurs de download/upload
    */
   const simulateSpeedTest = () => {
     setDownloadSpeed(0);
@@ -124,7 +88,6 @@ const Home = () => {
     setIsConnected(newConnectionState);
 
     if (newConnectionState) {
-      startPulseAnimation();
       simulateSpeedTest();
       timerIntervalRef.current = setInterval(() => {
         setTimerSeconds((prev) => prev + 1);
@@ -192,7 +155,11 @@ const Home = () => {
             {isConnected ? formatTimer(timerSeconds) : '00.00.00'}
           </Text>
           <Pressable style={styles.countryPicker}>
-            <Text style={styles.countryText}>🇺🇸 United States</Text>
+            <Image
+              source={require('./../../assets/images/cameroon.png')}
+              style={{ width: 25, height: 25, borderRadius: 20 }}
+            />
+            <Text style={styles.countryText}> Cameroon</Text>
             <AntDesign name="down" size={12} color="white" />
           </Pressable>
         </View>
@@ -200,14 +167,13 @@ const Home = () => {
         <View style={styles.buttonWrapper}>
 
           <Pressable
-            // onPress={toggleConnection}
+            onPress={toggleConnection}
             style={[
               styles.mainButton,
               isConnected && styles.mainButtonActive,
             ]}
             >
-          <CircularTicks isConnected={isConnected} >
-            </CircularTicks>
+          <CircularTicks isConnected={isConnected} size={250} />
             <View style={styles.innerCircle}>
               <MaterialCommunityIcons
                 name="power"

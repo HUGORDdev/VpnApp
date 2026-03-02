@@ -6,13 +6,16 @@ import {
   Dimensions,
   Animated,
   ScrollView,
+  Image,
 } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Wrapper from '@/components/Wrapper';
-import { RotatingLoader } from '../../components/AnimationComponents';
-
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import PremiumButton from '@/components/PremiumButton';
+import CircularTicks from '@/components/CircularTicks';
+import CircularNumbers from '@/components/CircularNumbers';
 const { width, height } = Dimensions.get('window');
 
 const Speed = () => {
@@ -37,7 +40,6 @@ const Speed = () => {
 
   /**
    * Lance le test de vitesse
-   * Simule un test réaliste avec 3 phases
    */
   const startSpeedTest = () => {
     setIsTestRunning(true);
@@ -45,7 +47,6 @@ const Speed = () => {
     setUploadSpeed(0);
     setPingSpeed(0);
 
-    // Phase 1: Download (2.5 secondes)
     setTestPhase('download');
     let downloadProgress = 0;
     const downloadInterval = setInterval(() => {
@@ -54,7 +55,6 @@ const Speed = () => {
         setDownloadSpeed(87.5);
         clearInterval(downloadInterval);
 
-        // Phase 2: Upload (2.5 secondes)
         setTestPhase('upload');
         let uploadProgress = 0;
         const uploadInterval = setInterval(() => {
@@ -63,7 +63,6 @@ const Speed = () => {
             setUploadSpeed(45.3);
             clearInterval(uploadInterval);
 
-            // Phase 3: Ping (1 seconde)
             setTestPhase('ping');
             let pingProgress = 0;
             const pingInterval = setInterval(() => {
@@ -74,7 +73,6 @@ const Speed = () => {
                 setIsTestRunning(false);
                 clearInterval(pingInterval);
 
-                // Anime la jauge jusqu'au bout
                 Animated.timing(gaugeAnim, {
                   toValue: 1,
                   duration: 500,
@@ -109,22 +107,7 @@ const Speed = () => {
     }, 100);
   };
 
-  /**
-   * Lance l'animation de rotation du loader
-   */
-  const startRotationAnimation = () => {
-    Animated.loop(
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 2000,
-        useNativeDriver: true,
-      })
-    ).start();
-  };
 
-  /**
-   * Arrête les animations
-   */
   const stopAnimations = () => {
     if (testIntervalRef.current) {
       clearInterval(testIntervalRef.current);
@@ -132,9 +115,7 @@ const Speed = () => {
     rotateAnim.setValue(0);
   };
 
-  /**
-   * Réinitialise le test
-   */
+  
   const resetTest = () => {
     stopAnimations();
     setTestPhase('idle');
@@ -144,9 +125,6 @@ const Speed = () => {
     gaugeAnim.setValue(0);
   };
 
-  /**
-   * Nettoyage au démontage
-   */
   useEffect(() => {
     return () => {
       stopAnimations();
@@ -159,7 +137,6 @@ const Speed = () => {
     outputRange: ['0deg', '360deg'],
   });
 
-  // Convertir 0-1 en 0-360 pour la jauge
   const gaugeRotate = gaugeAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
@@ -179,7 +156,28 @@ const Speed = () => {
           </Pressable>
         </View>
 
+        <View style={styles.infoContainer}>
+          <View style={styles.info}>
+            <FontAwesome name="signal" size={24} color="white" />
+            <Text style={styles.infoText}>
+              Ping {pingSpeed.toFixed(0)}ms
+            </Text>
+          </View>
+          <View style={styles.info}>
+            <Image
+              source={require('./../../assets/images/cameroon.png')}
+              style={{ width: 25, height: 25, borderRadius: 20 }}
+            />
+            <Text style={styles.infoText}>Cameroon</Text>
+          </View>
+          <View style={styles.info}>
+            <FontAwesome name="wifi" size={24} color="white" />
+            <Text style={styles.infoText}>jitter-{Math.max(0, pingSpeed * 0.1).toFixed(1)}ms</Text>
+          </View>
+        </View>
         <View style={styles.gaugeContainer}>
+          <CircularTicks isConnected={isTestRunning} size={350} />
+          <CircularNumbers size={380} />
           <View style={styles.gaugeBg}>
             {isTestRunning && (
               <Animated.View
@@ -214,77 +212,46 @@ const Speed = () => {
         </View>
 
         <View style={styles.detailsContainer}>
-          <View style={styles.detailRow}>
-            <View style={styles.detailItem}>
-              <View style={styles.iconContainer}>
-                <MaterialCommunityIcons name="wifi-strength-1" size={20} color="#2E5BFF" />
-              </View>
-              <View style={styles.detailInfo}>
-                <Text style={styles.detailLabel}>Ping</Text>
-                <Text style={styles.detailValue}>{pingSpeed.toFixed(0)} ms</Text>
-              </View>
-            </View>
-
-            <View style={styles.flagContainer}>
-              <Text style={styles.flagEmoji}>🇺🇸</Text>
-              <Text style={styles.flagText}>United States</Text>
-            </View>
-
-            <View style={styles.detailItem}>
-              <View style={styles.iconContainer}>
-                <MaterialCommunityIcons name="pulse" size={20} color="#2E5BFF" />
-              </View>
-              <View style={styles.detailInfo}>
-                <Text style={styles.detailLabel}>Jitter</Text>
-                <Text style={styles.detailValue}>
-                  {Math.max(0, pingSpeed * 0.1).toFixed(1)} ms
-                </Text>
-              </View>
-            </View>
-          </View>
-
           <View style={styles.speedRow}>
             <View style={styles.speedBox}>
               <View style={styles.speedBoxHeader}>
-                <MaterialCommunityIcons name="download" size={20} color="#00FF00" />
                 <Text style={styles.speedBoxLabel}>Download</Text>
               </View>
               <Text style={styles.speedBoxValue}>
-                {downloadSpeed.toFixed(1)}
+                {downloadSpeed.toFixed(1)}Mbps
               </Text>
-              <Text style={styles.speedBoxUnit}>Mbps</Text>
             </View>
-
             <View style={styles.speedBox}>
               <View style={styles.speedBoxHeader}>
-                <MaterialCommunityIcons name="upload" size={20} color="#FF6B6B" />
+                <Text style={styles.speedBoxLabel}>Ping</Text>
+              </View>
+              <Text style={styles.speedBoxValue}>
+                {downloadSpeed.toFixed(1)}Mbps
+              </Text>
+            </View>
+            <View style={styles.speedBox}>
+              <View style={styles.speedBoxHeader}>
+              <AntDesign name="arrow-up" size={20} color="white" />  
                 <Text style={styles.speedBoxLabel}>Upload</Text>
               </View>
               <Text style={styles.speedBoxValue}>
-                {uploadSpeed.toFixed(1)}
+                {uploadSpeed.toFixed(1)}Mbps
               </Text>
-              <Text style={styles.speedBoxUnit}>Mbps</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.actionContainer}>
           {isTestRunning ? (
-            <Pressable
+            <PremiumButton
+              title={testPhase === 'idle' ? 'Request Connection' : 'Test Again'}
               onPress={resetTest}
-              style={[styles.button, styles.stopButton]}
-            >
-              <Text style={styles.buttonText}>Stop Test</Text>
-            </Pressable>
+            />
           ) : (
-            <Pressable
+            <PremiumButton
+              title={testPhase === 'idle' ? 'Request Connection' : 'Test Again'}
               onPress={startSpeedTest}
-              style={[styles.button, styles.startButton]}
-            >
-              <Text style={styles.buttonText}>
-                {testPhase === 'idle' ? 'Request Connection' : 'Test Again'}
-              </Text>
-            </Pressable>
+            />
           )}
         </View>
 
@@ -341,16 +308,14 @@ const styles = StyleSheet.create({
     height: 280,
     borderRadius: 140,
     backgroundColor: '#1F2235',
-    borderWidth: 3,
-    borderColor: '#2E5BFF',
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#2E5BFF',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 15,
     elevation: 10,
-    overflow: 'hidden',
+    // overflow: 'hidden',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 20,
   },
   gaugeProgress: {
     position: 'absolute',
@@ -373,7 +338,8 @@ const styles = StyleSheet.create({
   mainSpeed: {
     fontSize: 64,
     fontWeight: '700',
-    color: '#2E5BFF',
+    color: 'white',
+    // color: '#2E5BFF',
   },
   speedUnit: {
     fontSize: 18,
@@ -398,69 +364,40 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     gap: 16,
   },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#1F2235',
+  infoContainer: {
     padding: 16,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#2E5BFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+    justifyContent:'center'
+
   },
-  detailItem: {
+  info: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    flex: 1,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    backgroundColor: 'rgba(46, 91, 255, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  detailInfo: {
-    gap: 2,
-  },
-  detailLabel: {
-    color: '#94A3B8',
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  detailValue: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '700',
+    backgroundColor: '#1F2235',
+    padding:7,
+    borderRadius:20    
   },
-  flagContainer: {
-    alignItems: 'center',
-    gap: 4,
-  },
-  flagEmoji: {
-    fontSize: 32,
-  },
-  flagText: {
-    color: '#94A3B8',
-    fontSize: 10,
-    fontWeight: '500',
-  },
+
 
   // ========== SPEED BOXES ==========
   speedRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 10,
+    // justifyContent: 'center',
   },
   speedBox: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: '#1F2235',
-    padding: 16,
+    padding: 18,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#2E5BFF',
     alignItems: 'center',
+    elevation: 5,
   },
   speedBoxHeader: {
     flexDirection: 'row',
@@ -474,9 +411,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   speedBoxValue: {
-    fontSize: 28,
+    fontSize: 18,
     fontWeight: '700',
-    color: '#2E5BFF',
+    color: 'white',
   },
   speedBoxUnit: {
     color: '#94A3B8',
@@ -488,6 +425,8 @@ const styles = StyleSheet.create({
   actionContainer: {
     marginVertical: 20,
     gap: 12,
+    backgroundColor: 'transparent',
+    elevation: 5
   },
   button: {
     flexDirection: 'row',
@@ -498,12 +437,6 @@ const styles = StyleSheet.create({
     gap: 10,
     elevation: 10,
     borderWidth: 1,
-  },
-  startButton: {
-    backgroundColor: '#1F2235',
-  },
-  stopButton: {
-    backgroundColor: '#ff4757',
   },
   buttonText: {
     color: 'white',

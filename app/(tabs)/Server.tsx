@@ -14,13 +14,14 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Wrapper from '@/components/Wrapper';
 import { FadeInOut } from './../../components/AnimationComponents';
+import { servers } from '@/components/Constant';
 
 const { width } = Dimensions.get('window');
 
 /**
  * Interface pour les données de serveur
  */
-interface ServerData {
+export interface ServerData {
   id: string;
   country: string;
   flag: string;
@@ -31,7 +32,6 @@ interface ServerData {
 }
 
 const Server = () => {
-  // ============ ÉTATS ============
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState<'recommended' | 'global'>(
     'recommended'
@@ -39,83 +39,8 @@ const Server = () => {
   const [selectedServerId, setSelectedServerId] = useState('us-1');
   const [filteredServers, setFilteredServers] = useState<ServerData[]>([]);
 
-  // ============ DONNÉES DES SERVEURS ============
-  const servers: ServerData[] = [
-    {
-      id: 'us-1',
-      country: 'United States',
-      flag: '🇺🇸',
-      city: 'New York',
-      locations: 15,
-      ping: 165,
-      status: 'recommended',
-    },
-    {
-      id: 'uk-1',
-      country: 'United Kingdom',
-      flag: '🇬🇧',
-      city: 'London',
-      locations: 11,
-      ping: 543,
-      status: 'available',
-    },
-    {
-      id: 'de-1',
-      country: 'Germany',
-      flag: '🇩🇪',
-      city: 'Berlin',
-      locations: 44,
-      ping: 543,
-      status: 'available',
-    },
-    {
-      id: 'au-1',
-      country: 'Australia',
-      flag: '🇦🇺',
-      city: 'Sydney',
-      locations: 46,
-      ping: 543,
-      status: 'available',
-    },
-    {
-      id: 'en-1',
-      country: 'England',
-      flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
-      city: 'Manchester',
-      locations: 40,
-      ping: 543,
-      status: 'available',
-    },
-    {
-      id: 'ca-1',
-      country: 'Canada',
-      flag: '🇨🇦',
-      city: 'Toronto',
-      locations: 20,
-      ping: 85,
-      status: 'recommended',
-    },
-    {
-      id: 'fr-1',
-      country: 'France',
-      flag: '🇫🇷',
-      city: 'Paris',
-      locations: 30,
-      ping: 120,
-      status: 'available',
-    },
-    {
-      id: 'jp-1',
-      country: 'Japan',
-      flag: '🇯🇵',
-      city: 'Tokyo',
-      locations: 25,
-      ping: 150,
-      status: 'available',
-    },
-  ];
+  
 
-  // ============ ANIMATIONS ============
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   /**
@@ -138,7 +63,6 @@ const Server = () => {
       );
     }
 
-    // Animation fade
     Animated.sequence([
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -155,9 +79,6 @@ const Server = () => {
     setFilteredServers(filtered);
   }, [searchQuery, selectedTab]);
 
-  /**
-   * Gère la sélection d'un serveur
-   */
   const handleSelectServer = (serverId: string) => {
     setSelectedServerId(serverId);
   };
@@ -444,7 +365,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#2E5BFF',
+    // borderColor: '#2E5BFF',
   },
   searchIcon: {
     marginRight: 8,
@@ -474,7 +395,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: '#1F2235',
     borderWidth: 1,
-    borderColor: '#2E5BFF',
+    // borderColor: '#2E5BFF',
     gap: 6,
   },
   tabActive: {
@@ -503,7 +424,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#2E5BFF',
+    // borderColor: '#2E5BFF',
   },
   serverItemSelected: {
     backgroundColor: 'rgba(46, 91, 255, 0.15)',
