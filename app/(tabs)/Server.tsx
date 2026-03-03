@@ -15,6 +15,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Wrapper from '@/components/Wrapper';
 import { FadeInOut } from './../../components/AnimationComponents';
 import { servers } from '@/components/Constant';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -39,7 +40,7 @@ const Server = () => {
   const [selectedServerId, setSelectedServerId] = useState('us-1');
   const [filteredServers, setFilteredServers] = useState<ServerData[]>([]);
 
-  
+
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -197,8 +198,8 @@ const Server = () => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Pressable>
-            <AntDesign name="arrow-left" size={24} color="white" />
+          <Pressable style={styles.connectBtn}>
+            <MaterialIcons name="keyboard-arrow-left" size={30} color="white" />
           </Pressable>
           <Text style={styles.headerTitle}>Select server</Text>
           <View style={styles.headerSpacer} />
@@ -239,7 +240,7 @@ const Server = () => {
             <MaterialCommunityIcons
               name="star"
               size={16}
-              color={selectedTab === 'recommended' ? '#2E5BFF' : '#94A3B8'}
+              color={'white'}
             />
             <Text
               style={[
@@ -261,7 +262,7 @@ const Server = () => {
             <MaterialCommunityIcons
               name="earth"
               size={16}
-              color={selectedTab === 'global' ? '#2E5BFF' : '#94A3B8'}
+              color={'white'}
             />
             <Text
               style={[
@@ -314,11 +315,11 @@ const Server = () => {
           </View>
 
           <Pressable style={styles.autoSelectBtn}>
-            <MaterialCommunityIcons
+            {/* <MaterialCommunityIcons
               name="auto-fix"
               size={16}
               color="white"
-            />
+            /> */}
             <Text style={styles.autoSelectText}>Enable Auto Selection</Text>
           </Pressable>
         </View>
@@ -408,7 +409,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   tabTextActive: {
-    color: '#2E5BFF',
+    color: 'white',
   },
 
   // ========== LISTE DES SERVEURS ==========
